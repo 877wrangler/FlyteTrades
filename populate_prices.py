@@ -5,7 +5,7 @@ import pytz
 
 api = tradeapi.REST(config.API_KEY, config.SECRET_KEY, base_url=config.API_URL)
 
-
+test
 
 def get_last2Days_bars(_ticker):
     # Set the timezone you want to use
