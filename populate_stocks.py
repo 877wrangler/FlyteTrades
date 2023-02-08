@@ -7,7 +7,7 @@ connection.row_factory = sqlite3.Row
 cursor = connection.cursor()
 
 cursor.execute("""
-    SELECT symbol, company FROM stock
+    SELECT symbol, name FROM stock
 """)
 
 rows = cursor.fetchall()
@@ -22,7 +22,7 @@ for asset in assets:
     try:
         if asset.status == 'active' and asset.tradable and asset.symbol not in symbols:
             print('Added a new stock {} {}'.format(asset.symbol, asset.name))
-            cursor.execute("INSERT INTO stock (symbol, company) VALUES (?, ?)", (asset.symbol, asset.name))
+            cursor.execute("INSERT INTO stock (symbol, name) VALUES (?, ?)", (asset.symbol, asset.name))
     except Exception as e:
         print(asset.symbol)
         print(e)
