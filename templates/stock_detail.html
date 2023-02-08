@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
     {% block content %}
         <h1><a href="/">Stocks</a>
-            <i class="chevron left icon"></i>
+            <i class="chevron right icon"></i>
             {{ stock.name }}</h1>
         <h2>{{ stock.symbol }}</h2>
     <!-- TradingView Widget BEGIN -->
@@ -40,6 +40,18 @@
           </script>
         </div>
         <!-- TradingView Widget END -->
+
+        <form method="post" action="/apply_strategy">
+            <select name="strategy_id">
+                {% for strategy in strategies %}
+                    <option value="{{ strategy.id }}"> {{ strategy.name }} </option>
+                {% endfor %}
+            </select>
+            <input type="hidden" name="stock_id" value="{{ stock.id }}" />
+            <input type="submit" value="Apply Strategy" />
+        </form>
+
+
         <table class="ui selectable inverted table">
             <thead>
                 <tr>
