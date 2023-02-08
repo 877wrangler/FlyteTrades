@@ -31,7 +31,7 @@ def stock_detail(request: Request, symbol):
 
     row = cursor.fetchone()
     cursor.execute("""
-        SELECT * FROM stock_price WHERE stock_id = ?
+        SELECT * FROM stock_price WHERE stock_id = ? ORDER BY date DESC
     """, (row['id'],))
     prices = cursor.fetchall()
     

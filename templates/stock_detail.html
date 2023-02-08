@@ -1,6 +1,8 @@
 {% extends "layout.html" %}
     {% block content %}
-        <h1>{{ stock.name }}</h1>
+        <h1><a href="/">Stocks</a>
+            <i class="chevron left icon"></i>
+            {{ stock.name }}</h1>
         <h2>{{ stock.symbol }}</h2>
         <table class="ui selectable inverted table">
             <thead>
