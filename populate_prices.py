@@ -3,9 +3,9 @@ import alpaca_trade_api as tradeapi
 from datetime import datetime, timedelta
 import pytz
 
+
 api = tradeapi.REST(config.API_KEY, config.SECRET_KEY, base_url=config.API_URL)
 
-test
 
 def get_last2Days_bars(_ticker):
     # Set the timezone you want to use
@@ -20,7 +20,19 @@ def get_last2Days_bars(_ticker):
     _bars = api.get_bars(_ticker, timeframe="1Day",
                          start=two_days_ago.isoformat(),
                          end=None,
-                         limit=2
+                         limit=4
                          )
     print(_bars)
-get_last2Days_bars('AAPL')
+    return _bars
+
+bars = get_last2Days_bars(['AAPL', 'MSFT'])
+for bar in bars:
+    print(f'Symbol: {bar.S}')
+    print(f'Timestamp: {bar.t}')
+    print(f'Open: {bar.o}')
+    print(f'Close: {bar.c}')
+    print(f'High: {bar.h}')
+    print(f'Low: {bar.l}')
+    print(f'Volume: {bar.v}')
+    print('---')
+
