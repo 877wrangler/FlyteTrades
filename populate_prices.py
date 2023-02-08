@@ -24,9 +24,9 @@ for row in rows:
 api = tradeapi.REST(config.API_KEY, config.SECRET_KEY, base_url=config.API_URL)
 timezone = pytz.timezone('America/New_York')
 timeNow = datetime.now(timezone)
-two_days_ago = timeNow - timedelta(days=1)
+two_days_ago = timeNow - timedelta(days=2)
 
-chunk_size = 200
+chunk_size = 100
 for i in range(0, len(symbols), chunk_size):
     print(i)
     symbol_chunk = symbols[i:i+chunk_size]
