@@ -21,10 +21,12 @@ stocks = cursor.fetchall()
 symbols = [stock['symbol'] for stock in stocks]
 print(symbols)
 
-
-
 for symbol in symbols:
-    today_first_15min(symbol)
-
-
+    opening_range_bars = today_first_15min(symbol)
+    opening_range_low = opening_range_bars['Low'].min()
+    opening_range_high = opening_range_bars['High'].max()
+    opening_range = opening_range_high - opening_range_low
+    print(opening_range_low)
+    print(opening_range_high)
+    print(opening_range)
 
