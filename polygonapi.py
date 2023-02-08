@@ -1,11 +1,12 @@
-from polygon import RESTClient
-import json
+from polygon.rest import RESTClient
+import json, config
 from typing import cast
 from datetime import date
 from urllib3 import HTTPResponse
 
-KEY = '2w4sI8BiTXK6sKcw9rp6Q5P_qeLVNQGp'
-client = RESTClient(api_key=KEY)
+import config
+
+client = RESTClient(api_key=config.POLYGON_KEY)
 
 aggs = cast(
     HTTPResponse,
