@@ -24,9 +24,9 @@ api = tradeapi.REST(config.API_KEY, config.SECRET_KEY, base_url=config.API_URL)
 timezone = pytz.timezone('America/New_York')
 timeNow = datetime.now(timezone)
 current_date = date.today()
-two_days_ago = timeNow - timedelta(days=100)
+two_days_ago = timeNow - timedelta(days=3)
 
-symbols = ['MSFT'] # Temp override to test TA
+# symbols = ['MSFT'] # Temp override to test TA
 chunk_size = 65
 for i in range(0, len(symbols), chunk_size):
     print(i)
@@ -49,7 +49,7 @@ for i in range(0, len(symbols), chunk_size):
     print(len(recent_closes))
 
     for bar in barsets:
-        # print(f"processing symbol {bar.S}")
+        print(f"processing symbol {bar.S}")
         # print(barsets[0]) # For testing TA
 
         if len(recent_closes) >= 50 and current_date == bar.t.date():
@@ -61,8 +61,9 @@ for i in range(0, len(symbols), chunk_size):
         print(rsi_14)
 
         stock_id = stock_dict[bar.S]
+        print(bar)
         cursor.execute("""
-            INSERT INTO stock_price (stock_id, date, open, high, low, close, volume, sma_20. sma_50. rsi_14)
+            INSERT INTO stock_price (stock_id, date, open, high, low, close, volume, sma_20, sma_50, rsi_14)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (stock_id, bar.t.date(), bar.o, bar.h, bar.l, bar.c, bar.v, sma_20, sma_50, rsi_14))
     time.sleep(0.1)
