@@ -1,7 +1,8 @@
-import config, sqlite3, time, pytz
+import config, sqlite3, time, pytz, talib
 import alpaca_trade_api as tradeapi
 from alpaca_trade_api.rest import APIError
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
+import numpy as np
 
 connection = sqlite3.connect(config.DB_FILE)
 connection.row_factory = sqlite3.Row
@@ -22,8 +23,10 @@ for row in rows:
 api = tradeapi.REST(config.API_KEY, config.SECRET_KEY, base_url=config.API_URL)
 timezone = pytz.timezone('America/New_York')
 timeNow = datetime.now(timezone)
-two_days_ago = timeNow - timedelta(days=3)
+current_date = date.today()
+two_days_ago = timeNow - timedelta(days=100)
 
+symbols = ['MSFT'] # Temp override to test TA
 chunk_size = 65
 for i in range(0, len(symbols), chunk_size):
     print(i)
@@ -39,45 +42,29 @@ for i in range(0, len(symbols), chunk_size):
         for symbol in invalid_symbols:
             print(f'Invalid symbol: {symbol} {i}')
         continue
+
+    # Testing SMA
+    recent_closes = [bar.c for bar in barsets] # Store recent closes
+    recent_closes = np.array(recent_closes)
+    print(len(recent_closes))
+
     for bar in barsets:
-        print(f"procession symbol {bar.S}")
+        # print(f"processing symbol {bar.S}")
+        # print(barsets[0]) # For testing TA
+
+        if len(recent_closes) >= 50 and current_date == bar.t.date():
+            sma_20 = talib.SMA(recent_closes, timeperiod=20)[-1]
+            sma_50 = talib.SMA(recent_closes, timeperiod=50)[-1]
+            rsi_14 = talib.RSI(recent_closes, timeperiod=14)[-1]
+        else:
+            sma_20, sma_50, rsi_14 = None, None, None
+        print(rsi_14)
 
         stock_id = stock_dict[bar.S]
         cursor.execute("""
-            INSERT INTO stock_price (stock_id, date, open, high, low, close, volume)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (stock_id, bar.t.date(), bar.o, bar.h, bar.l, bar.c, bar.v))
+            INSERT INTO stock_price (stock_id, date, open, high, low, close, volume, sma_20. sma_50. rsi_14)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (stock_id, bar.t.date(), bar.o, bar.h, bar.l, bar.c, bar.v, sma_20, sma_50, rsi_14))
     time.sleep(0.1)
 
 connection.commit()
-
-
-# def get_last2days_bars(_ticker):
-#     # Set the timezone you want to use
-#     timezone = pytz.timezone('America/New_York')
-#
-#     # Get the current time in the desired timezone
-#     _timeNow = datetime.now(timezone)
-#
-#     # Calculate the datetime 2 days ago in the desired timezone
-#     two_days_ago = _timeNow - timedelta(days=2)
-#
-#     _bars = api.get_bars(_ticker, timeframe="1Day",
-#                          start=two_days_ago.isoformat(),
-#                          end=None,
-#                          limit=4
-#                          )
-#     print(_bars)
-#     return _bars
-#
-#
-# bars = get_last2days_bars(['AAVE', 'YFI'])
-# for bar in bars:
-#     print(f'Symbol: {bar.S}')
-#     print(f'Timestamp: {bar.t}')
-#     print(f'Open: {bar.o}')
-#     print(f'Close: {bar.c}')
-#     print(f'High: {bar.h}')
-#     print(f'Low: {bar.l}')
-#     print(f'Volume: {bar.v}')
-#     print('---')
