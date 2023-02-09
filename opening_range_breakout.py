@@ -1,9 +1,13 @@
+import smtplib
 import sqlite3, config
 import datetime as date
+import ssl
 from datetime import date
 from yfinanceapi import today_first_15min, get_daily_minbars
 import alpaca_trade_api as tradeapi
 from alpaca_trade_api.rest import REST
+
+context = ssl.create_default_context()
 
 api = tradeapi.REST(config.API_KEY, config.SECRET_KEY, base_url=config.API_URL)
 
@@ -25,9 +29,13 @@ stocks = cursor.fetchall()
 symbols = [stock['symbol'] for stock in stocks]
 # print(symbols)
 current_date = date.today().isoformat()
-orders = api.list_orders(status='all', after=f"{current_date}T13:30:00Z")
-existing_order_symbols = [order.symbol for order in orders]
 
+# orders = api.list_orders(status='all', after=f"{current_date}T13:30:00Z")
+orders = api.list_orders()
+
+messages = []
+
+existing_order_symbols = [order.symbol for order in orders]
 
 for symbol in symbols:
     opening_range_bars = today_first_15min(symbol)
@@ -48,24 +56,34 @@ for symbol in symbols:
         if symbol not in existing_order_symbols:
             limit_price = round(after_opening_range_breakout.iloc[0]['Close'], 2)
             trade_time = after_opening_range_breakout.index[0].time().strftime("%H:%M:%S")
+
+            messages.append(f"Placing order for {symbol} at {limit_price}, closed above {opening_range_high}\n\n at {trade_time}")
             print(f"Placing order for {symbol} at {limit_price}, closed above {opening_range_high} at {trade_time}")
 
-            api.submit_order(
-                symbol=symbol,
-                side='buy',
-                type='limit',
-                qty=100,
-                time_in_force='day',
-                order_class='bracket',
-                limit_price=limit_price,
-                take_profit=dict(
-                    limit_price=round(limit_price + opening_range, 2),
-                ),
-                stop_loss=dict(
-                    stop_price=round(limit_price - opening_range,2),
-                    limit_price=round(limit_price - opening_range, 2),
-                )
-            )
+            # api.submit_order(
+            #     symbol=symbol,
+            #     side='buy',
+            #     type='limit',
+            #     qty=100,
+            #     time_in_force='day',
+            #     order_class='bracket',
+            #     limit_price=limit_price,
+            #     take_profit=dict(
+            #         limit_price=round(limit_price + opening_range, 2),
+            #     ),
+            #     stop_loss=dict(
+            #         stop_price=round(limit_price - opening_range,2),
+            #         limit_price=round(limit_price - opening_range, 2),
+            #     )
+            # )
         else:
             print(f"Already an order for {symbol}, skipping")
+print(messages)
 
+with smtplib.SMTP_SSL(config.EMAIL_HOST, config.EMAIL_PORT, context=context) as server:
+    server.login(config.EMAIL_ADDRESS, config.EMAIL_PASSWORD)
+
+    email_message = f"Subject: Trade Notifications for {current_date}\n\n"
+    email_message += "\n\n".join(messages)
+
+    server.sendmail(config.EMAIL_ADDRESS, config.EMAIL_ADDRESS, email_message)
