@@ -1,6 +1,6 @@
-import sqlite3
-import config
+import sqlite3, config
 import datetime as date
+from datetime import date
 from yfinanceapi import today_first_15min, get_daily_minbars
 import alpaca_trade_api as tradeapi
 from alpaca_trade_api.rest import REST
@@ -24,8 +24,8 @@ cursor.execute("""
 stocks = cursor.fetchall()
 symbols = [stock['symbol'] for stock in stocks]
 # print(symbols)
-
-orders = api.list_orders()
+current_date = date.today().isoformat()
+orders = api.list_orders(status='all', after=f"{current_date}T13:30:00Z")
 existing_order_symbols = [order.symbol for order in orders]
 
 

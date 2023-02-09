@@ -1,9 +1,7 @@
-import config, sqlite3
+import config, sqlite3, time, pytz
 import alpaca_trade_api as tradeapi
 from alpaca_trade_api.rest import APIError
 from datetime import datetime, timedelta
-import pytz
-import time
 
 connection = sqlite3.connect(config.DB_FILE)
 connection.row_factory = sqlite3.Row
@@ -20,22 +18,22 @@ for row in rows:
     symbol = row['symbol']
     symbols.append(symbol)
     stock_dict[symbol] = row['id']
-    
+
 api = tradeapi.REST(config.API_KEY, config.SECRET_KEY, base_url=config.API_URL)
 timezone = pytz.timezone('America/New_York')
 timeNow = datetime.now(timezone)
-two_days_ago = timeNow - timedelta(days=2)
+two_days_ago = timeNow - timedelta(days=3)
 
-chunk_size = 100
+chunk_size = 65
 for i in range(0, len(symbols), chunk_size):
     print(i)
-    symbol_chunk = symbols[i:i+chunk_size]
+    symbol_chunk = symbols[i:i + chunk_size]
     try:
         barsets = api.get_bars(symbol_chunk, timeframe="1Day",
-                            start=two_days_ago.isoformat(),
-                            end=None,
-                            limit=200
-                            )
+                               start=two_days_ago.isoformat(),
+                               end=None,
+                               limit=200
+                               )
     except APIError as e:
         invalid_symbols = e.args[0].split(': ')[1].split(',')
         for symbol in invalid_symbols:
@@ -51,38 +49,35 @@ for i in range(0, len(symbols), chunk_size):
             """, (stock_id, bar.t.date(), bar.o, bar.h, bar.l, bar.c, bar.v))
     time.sleep(0.1)
 
-
-
 connection.commit()
 
 
-
-def get_last2Days_bars(_ticker):
-    # Set the timezone you want to use
-    timezone = pytz.timezone('America/New_York')
-
-    # Get the current time in the desired timezone
-    _timeNow = datetime.now(timezone)
-
-    # Calculate the datetime 2 days ago in the desired timezone
-    two_days_ago = _timeNow - timedelta(days=2)
-
-    _bars = api.get_bars(_ticker, timeframe="1Day",
-                         start=two_days_ago.isoformat(),
-                         end=None,
-                         limit=4
-                         )
-    print(_bars)
-    return _bars
-
-bars = get_last2Days_bars(['AAVE', 'YFI'])
-for bar in bars:
-    print(f'Symbol: {bar.S}')
-    print(f'Timestamp: {bar.t}')
-    print(f'Open: {bar.o}')
-    print(f'Close: {bar.c}')
-    print(f'High: {bar.h}')
-    print(f'Low: {bar.l}')
-    print(f'Volume: {bar.v}')
-    print('---')
-
+# def get_last2days_bars(_ticker):
+#     # Set the timezone you want to use
+#     timezone = pytz.timezone('America/New_York')
+#
+#     # Get the current time in the desired timezone
+#     _timeNow = datetime.now(timezone)
+#
+#     # Calculate the datetime 2 days ago in the desired timezone
+#     two_days_ago = _timeNow - timedelta(days=2)
+#
+#     _bars = api.get_bars(_ticker, timeframe="1Day",
+#                          start=two_days_ago.isoformat(),
+#                          end=None,
+#                          limit=4
+#                          )
+#     print(_bars)
+#     return _bars
+#
+#
+# bars = get_last2days_bars(['AAVE', 'YFI'])
+# for bar in bars:
+#     print(f'Symbol: {bar.S}')
+#     print(f'Timestamp: {bar.t}')
+#     print(f'Open: {bar.o}')
+#     print(f'Close: {bar.c}')
+#     print(f'High: {bar.h}')
+#     print(f'Low: {bar.l}')
+#     print(f'Volume: {bar.v}')
+#     print('---')
