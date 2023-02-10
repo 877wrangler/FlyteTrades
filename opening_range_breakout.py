@@ -30,8 +30,7 @@ symbols = [stock['symbol'] for stock in stocks]
 # print(symbols)
 current_date = date.today().isoformat()
 
-# orders = api.list_orders(status='all', after=f"{current_date}T13:30:00Z")
-orders = api.list_orders()
+orders = api.list_orders(status='all', after=f"{current_date}T13:30:00Z")
 
 messages = []
 
@@ -60,22 +59,22 @@ for symbol in symbols:
             messages.append(f"Placing order for {symbol} at {limit_price}, closed above {opening_range_high}\n\n at {trade_time}")
             print(f"Placing order for {symbol} at {limit_price}, closed above {opening_range_high} at {trade_time}")
 
-            # api.submit_order(
-            #     symbol=symbol,
-            #     side='buy',
-            #     type='limit',
-            #     qty=100,
-            #     time_in_force='day',
-            #     order_class='bracket',
-            #     limit_price=limit_price,
-            #     take_profit=dict(
-            #         limit_price=round(limit_price + opening_range, 2),
-            #     ),
-            #     stop_loss=dict(
-            #         stop_price=round(limit_price - opening_range,2),
-            #         limit_price=round(limit_price - opening_range, 2),
-            #     )
-            # )
+            api.submit_order(
+                symbol=symbol,
+                side='buy',
+                type='limit',
+                qty=100,
+                time_in_force='day',
+                order_class='bracket',
+                limit_price=limit_price,
+                take_profit=dict(
+                    limit_price=round(limit_price + opening_range, 2),
+                ),
+                stop_loss=dict(
+                    stop_price=round(limit_price - opening_range,2),
+                    limit_price=round(limit_price - opening_range, 2),
+                )
+            )
         else:
             print(f"Already an order for {symbol}, skipping")
 print(messages)
