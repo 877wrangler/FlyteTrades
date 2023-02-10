@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 import sqlite3, config
 from datetime import date
+import numpy as np
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -39,6 +40,29 @@ def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "stocks": rows})
 
 
+@app.get("/account_info")
+def account_info(request: Request):
+    connection = sqlite3.connect(config.DB_FILE)
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+
+    # Selecting info
+    account_data = cursor.execute("""
+        SELECT date, portfolio_value, cash, buying_power FROM account_info
+    """)
+    account_data2 = account_data.fetchall()
+
+    dates = [row['date'] for row in account_data2]
+    portfolio_values = [row['portfolio_value'] for row in account_data2]
+    dates = np.array(dates)
+    portfolio_values = np.array(portfolio_values)
+
+    for row in account_data2:
+        print(row['date'], row['portfolio_value'], row['cash'], row['buying_power'])
+    return templates.TemplateResponse("account_info.html", {"request": request,
+                                      "rows": account_data2})
+
+
 @app.get("/stock/{symbol}")
 def stock_detail(request: Request, symbol):
     connection = sqlite3.connect(config.DB_FILE)
@@ -59,8 +83,9 @@ def stock_detail(request: Request, symbol):
         SELECT * FROM stock_price WHERE stock_id = ? ORDER BY date DESC
     """, (row['id'],))
     prices = cursor.fetchall()
-    
-    return templates.TemplateResponse("stock_detail.html", {"request": request, "stock": row, "bars": prices, "strategies": strategies})
+
+    return templates.TemplateResponse("stock_detail.html",
+                                      {"request": request, "stock": row, "bars": prices, "strategies": strategies})
 
 
 @app.post("/apply_strategy")
