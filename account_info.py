@@ -20,7 +20,7 @@ cursor.execute("INSERT INTO account_info (date, portfolio_value, cash, buying_po
                (now, acc_info.portfolio_value, acc_info.cash, acc_info.buying_power))
 
 connection.commit()
-
+print('Succesfully updated account info')
 # # Selecting info
 # account_data = cursor.execute("""
 #     SELECT date, portfolio_value, cash, buying_power FROM account_info
