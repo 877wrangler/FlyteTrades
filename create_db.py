@@ -39,6 +39,13 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS stock_strategy (
     FOREIGN KEY (strategy_id) REFERENCES strategy (id) )
 """)
 
+cursor.execute("""CREATE TABLE IF NOT EXISTS account_info (
+    date NOT NULL,
+    portfolio_value NOT NULL,
+    cash NOT NULL,
+    buying_power NOT NULL )
+""")
+
 strategies = ['opening_range_breakout', 'opening_range_breakdown']
 
 for strategy in strategies:
