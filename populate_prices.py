@@ -24,10 +24,10 @@ api = tradeapi.REST(config.API_KEY, config.SECRET_KEY, base_url=config.API_URL)
 timezone = pytz.timezone('America/New_York')
 timeNow = datetime.now(timezone)
 current_date = date.today()
-two_days_ago = timeNow - timedelta(days=3)
+two_days_ago = timeNow - timedelta(days=1)
 
 # symbols = ['MSFT'] # Temp override to test TA
-chunk_size = 65
+chunk_size = 190
 for i in range(0, len(symbols), chunk_size):
     print(i)
     symbol_chunk = symbols[i:i + chunk_size]

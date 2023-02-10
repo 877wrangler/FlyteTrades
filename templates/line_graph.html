@@ -1,0 +1,12 @@
+<html>
+  <head>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  </head>
+  <body>
+    <div id="line-graph"></div>
+    <script>
+      var data = [{x: {{ dates|tojson|safe }}, y: {{ portfolio_values|tojson|safe }}, type: 'line'}];
+      Plotly.newPlot('line-graph', data);
+    </script>
+  </body>
+</html>

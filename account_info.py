@@ -21,7 +21,7 @@ cursor.execute("INSERT INTO account_info (date, portfolio_value, cash, buying_po
 
 connection.commit()
 print('Succesfully updated account info')
-# # Selecting info
+# # # Selecting info
 # account_data = cursor.execute("""
 #     SELECT date, portfolio_value, cash, buying_power FROM account_info
 # """)
@@ -31,6 +31,7 @@ print('Succesfully updated account info')
 # portfolio_values = [row['portfolio_value'] for row in account_data2]
 # dates = np.array(dates)
 # portfolio_values = np.array(portfolio_values)
+# print(type(account_data2[0]['date']))
 
 # for row in account_data2:
 #     print(row['date'], row['portfolio_value'], row['cash'], row['buying_power'])

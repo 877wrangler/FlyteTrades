@@ -1,6 +1,12 @@
 {% extends "layout.html" %}
     {% block content %}
         <h1>Account Info</h1>
+<!--        <div id="line-graph"></div>-->
+<!--            <script>-->
+<!--            var data = {{fig_json|tojson|safe}};-->
+<!--            Plotly.newPlot('line-graph', data.data, data.layout);-->
+<!--            </script>-->
+
 
         <table class="ui selectable inverted table">
             <thead>
@@ -10,10 +16,12 @@
               </tr>
             </thead>
             <tbody>
-              {% for row in account_data2 %}
+              {% for row in rows %}
                 <tr>
                     <td>{{ row.date }}</td>
-                    <td>{{ row.portfolio_value }}</a></td>
+                    <td>{{ "${:,.2f}".format(row.portfolio_value|float) }}</td>
+
+
                 </tr>
               {% endfor %}
             </tbody>

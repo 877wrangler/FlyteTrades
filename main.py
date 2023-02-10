@@ -1,11 +1,15 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 import sqlite3, config
 from datetime import date
 import numpy as np
+import plotly.express as px
 
 app = FastAPI()
+# app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
@@ -48,7 +52,7 @@ def account_info(request: Request):
 
     # Selecting info
     account_data = cursor.execute("""
-        SELECT date, portfolio_value, cash, buying_power FROM account_info
+        SELECT date, portfolio_value, cash, buying_power FROM account_info ORDER BY date DESC
     """)
     account_data2 = account_data.fetchall()
 
@@ -57,10 +61,14 @@ def account_info(request: Request):
     dates = np.array(dates)
     portfolio_values = np.array(portfolio_values)
 
-    for row in account_data2:
-        print(row['date'], row['portfolio_value'], row['cash'], row['buying_power'])
+    # # Create line graph using Plotly
+    # fig = px.line(x=dates, y=portfolio_values)
+    #
+    # # Convert the plotly figure to a JSON string
+    # fig_json = fig.to_json()
+
     return templates.TemplateResponse("account_info.html", {"request": request,
-                                      "rows": account_data2})
+                                                            "rows": account_data2})
 
 
 @app.get("/stock/{symbol}")
