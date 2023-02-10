@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+    {% block content %}
+        <h1>Account Info</h1>
+
+        <table class="ui selectable inverted table">
+            <thead>
+              <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in account_data2 %}
+                <tr>
+                    <td>{{ row.date }}</td>
+                    <td>{{ row.portfolio_value }}</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+    {% endblock %}
