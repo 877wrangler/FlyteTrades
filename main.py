@@ -7,9 +7,11 @@ import sqlite3, config
 from datetime import date
 import numpy as np
 import plotly.express as px
+import plotly.graph_objects as go
+
 
 app = FastAPI()
-# app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 
@@ -61,14 +63,21 @@ def account_info(request: Request):
     dates = np.array(dates)
     portfolio_values = np.array(portfolio_values)
 
-    # # Create line graph using Plotly
-    # fig = px.line(x=dates, y=portfolio_values)
-    #
-    # # Convert the plotly figure to a JSON string
-    # fig_json = fig.to_json()
+    # Create line graph using Plotly
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=dates, y=portfolio_values))
 
-    return templates.TemplateResponse("account_info.html", {"request": request,
-                                                            "rows": account_data2})
+    # Set the X and Y axis labels to an empty string
+    fig.update_layout(xaxis=dict(title=''),
+                      yaxis=dict(title='',
+                                 autorange='reversed'))  # Set Y-axis to reversed
+
+    # Convert the plotly figure to a JSON string
+    fig_json = fig.to_json()
+
+    return templates.TemplateResponse("account_info2.html", {"request": request,
+                                                             "fig_json": fig_json,
+                                                             "rows": account_data2})
 
 
 @app.get("/stock/{symbol}")

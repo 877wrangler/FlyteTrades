@@ -1,13 +1,12 @@
 {% extends "layout.html" %}
     {% block content %}
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <h1>Account Info</h1>
-<!--        <div id="line-graph"></div>-->
-<!--            <script>-->
-<!--            var data = {{fig_json|tojson|safe}};-->
-<!--            Plotly.newPlot('line-graph', data.data, data.layout);-->
-<!--            </script>-->
-
-
+        <div id="line-graph"></div>
+            <script>
+            var data = {{fig_json|safe}};
+            Plotly.newPlot('line-graph', data.data, data.layout);
+            </script>
         <table class="ui selectable inverted table">
             <thead>
               <tr>
