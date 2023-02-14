@@ -5,10 +5,10 @@ from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 import sqlite3, config
 from datetime import date
+from account_info import account_status
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
-
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -48,36 +48,10 @@ def index(request: Request):
 
 @app.get("/account_info")
 def account_info(request: Request):
-    connection = sqlite3.connect(config.DB_FILE)
-    connection.row_factory = sqlite3.Row
-    cursor = connection.cursor()
-
-    # Selecting info
-    account_data = cursor.execute("""
-        SELECT date, portfolio_value, cash, buying_power FROM account_info ORDER BY date DESC
-    """)
-    account_data2 = account_data.fetchall()
-
-    dates = [row['date'] for row in account_data2]
-    portfolio_values = [row['portfolio_value'] for row in account_data2]
-    dates = np.array(dates)
-    portfolio_values = np.array(portfolio_values)
-
-    # Create line graph using Plotly
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=dates, y=portfolio_values))
-
-    # Set the X and Y axis labels to an empty string
-    fig.update_layout(xaxis=dict(title=''),
-                      yaxis=dict(title='',
-                                 autorange='reversed'))  # Set Y-axis to reversed
-
-    # Convert the plotly figure to a JSON string
-    fig_json = fig.to_json()
-
-    return templates.TemplateResponse("account_info2.html", {"request": request,
-                                                             "fig_json": fig_json,
-                                                             "rows": account_data2})
+    fig_json, account_data2 = account_status()
+    return templates.TemplateResponse("account_info.html", {"request": request,
+                                                            "fig_json": fig_json,
+                                                            "rows": account_data2})
 
 
 @app.get("/stock/{symbol}")
