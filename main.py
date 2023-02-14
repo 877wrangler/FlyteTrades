@@ -6,6 +6,7 @@ from pathlib import Path
 import sqlite3, config
 from datetime import date
 from account_info import account_status
+from stock_list import stock_list
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
@@ -18,31 +19,7 @@ templates = Jinja2Templates(directory="templates")
 @app.get("/")
 def index(request: Request):
     stock_filter = request.query_params.get('filter', False)
-    connection = sqlite3.connect(config.DB_FILE)
-    connection.row_factory = sqlite3.Row
-    cursor = connection.cursor()
-
-    if stock_filter == 'new_closing_highs':
-        cursor.execute("""
-        SELECT * FROM (
-            SELECT symbol, name, stock_id, max(close), date FROM stock_price JOIN stock 
-            ON stock.id = stock_price.stock_id GROUP BY stock_id ORDER BY symbol
-        ) WHERE date = ?
-        """, (date.today().isoformat(),))
-    elif stock_filter == 'new_closing_lows':
-        cursor.execute("""
-        SELECT * FROM (
-            SELECT symbol, name, stock_id, min(close), date FROM stock_price JOIN stock 
-            ON stock.id = stock_price.stock_id GROUP BY stock_id ORDER BY symbol
-        ) WHERE date = ?
-        """, (date.today().isoformat(),))
-    else:
-        cursor.execute("""
-            SELECT id, symbol, name FROM stock ORDER BY symbol
-        """)
-
-    rows = cursor.fetchall()
-
+    rows = stock_list(stock_filter)
     return templates.TemplateResponse("index.html", {"request": request, "stocks": rows})
 
 
