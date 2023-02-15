@@ -2,14 +2,10 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
-from pathlib import Path
 import sqlite3, config
-from datetime import date
 from account_info import account_status
 from stock_list import stock_list
-import numpy as np
-import plotly.express as px
-import plotly.graph_objects as go
+from stock_detail import daily_stock_data
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -26,32 +22,13 @@ def index(request: Request):
 @app.get("/account_info")
 def account_info(request: Request):
     fig_json, account_data2 = account_status()
-    return templates.TemplateResponse("account_info.html", {"request": request,
-                                                            "fig_json": fig_json,
+    return templates.TemplateResponse("account_info.html", {"request": request, "fig_json": fig_json,
                                                             "rows": account_data2})
 
 
 @app.get("/stock/{symbol}")
 def stock_detail(request: Request, symbol):
-    connection = sqlite3.connect(config.DB_FILE)
-    connection.row_factory = sqlite3.Row
-    cursor = connection.cursor()
-
-    cursor.execute("""
-        SELECT * FROM strategy
-    """)
-    strategies = cursor.fetchall()
-
-    cursor.execute("""
-        SELECT id, symbol, name FROM stock WHERE symbol = ?
-    """, (symbol,))
-    row = cursor.fetchone()
-
-    cursor.execute("""
-        SELECT * FROM stock_price WHERE stock_id = ? ORDER BY date DESC
-    """, (row['id'],))
-    prices = cursor.fetchall()
-
+    row, prices, strategies = daily_stock_data(symbol)
     return templates.TemplateResponse("stock_detail.html",
                                       {"request": request, "stock": row, "bars": prices, "strategies": strategies})
 
